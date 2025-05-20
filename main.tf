@@ -5,20 +5,20 @@ module "sg" {
 
 module "rds" {
   source             = "git@github.com:pipinokyo/tf-modules.git//RDS-Module"
-  db_name            = "wordpressdb"
-  db_username        = "admin"
-  db_password        = "Wordpress123!"
+  db_name            = var.db_name
+  db_username        = var.db_username
+  db_password        = var.db_password
   instance_class     = "db.t3.micro"
   db_subnet_group    = data.aws_db_subnet_group.default.name
   security_group_id  = module.sg.rds_sg_id
 }
 
 module "ec2" {
-  source                = "git@github.com:pipinokyo/tf-modules.git//EC2-Module"
-  ami_id                = data.aws_ami.amazon_linux.id
-  instance_type         = "t2.micro"
-  key_name              = "ubuntu wsl"
-  security_group_ids    = [module.sg.ec2_sg_id]
+  source             = "git@github.com:pipinokyo/tf-modules.git//EC2-Module"
+  ami_id             = data.aws_ami.amazon_linux.id
+  instance_type      = var.instance_type
+  key_name           = var.key_name
+  security_group_ids = [module.sg.ec2_sg_id]
 }
 
 data "aws_vpc" "default" {
