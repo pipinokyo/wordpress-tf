@@ -1,1 +1,48 @@
-testing repo
+module "sg" {
+  source  = "git@github.com:pipinokyo/tf-modules.git//SG-Module"
+  vpc_id  = data.aws_vpc.default.id
+}
+
+module "rds" {
+  source             = "git@github.com:pipinokyo/tf-modules.git//RDS-Module"
+  db_name            = "wordpressdb"
+  db_username        = "admin"
+  db_password        = "Wordpress123!"
+  instance_class     = "db.t3.micro"
+  db_subnet_group    = data.aws_db_subnet_group.default.name
+  security_group_id  = module.sg.rds_sg_id
+}
+
+module "ec2" {
+  source                = "git@github.com:pipinokyo/tf-modules.git//EC2-Module"
+  ami_id                = data.aws_ami.amazon_linux.id
+  instance_type         = "t2.micro"
+  key_name              = "ubuntu wsl"
+  security_group_ids    = [module.sg.ec2_sg_id]
+}
+
+data "aws_vpc" "default" {
+  default = true
+}
+
+data "aws_db_subnet_group" "default" {
+  name = "default"
+}
+
+data "aws_ami" "amazon_linux" {
+  most_recent = true
+  owners      = ["amazon"]
+
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-hvm-*-x86_64-gp2"]
+  }
+}
+
+output "ec2_public_ip" {
+  value = module.ec2.public_ip
+}
+
+output "rds_endpoint" {
+  value = module.rds.endpoint
+}
