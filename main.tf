@@ -1,6 +1,8 @@
 module "sg" {
-  source  = "git@github.com:pipinokyo/tf-modules.git//SG-Module"
-  vpc_id  = data.aws_vpc.default.id
+  source       = "git@github.com:pipinokyo/tf-modules.git//SG-Module"
+  vpc_id       = data.aws_vpc.default.id
+  service_name = "sg"
+  tags         = local.common_tags
 }
 
 module "rds" {
@@ -11,6 +13,8 @@ module "rds" {
   instance_class     = "db.t3.micro"
   db_subnet_group    = data.aws_db_subnet_group.default.name
   security_group_id  = module.sg.rds_sg_id
+  service_name       = "rds"
+  tags               = local.common_tags
 }
 
 module "ec2" {
@@ -19,6 +23,8 @@ module "ec2" {
   instance_type      = var.instance_type
   key_name           = var.key_name
   security_group_ids = [module.sg.ec2_sg_id]
+  service_name       = "ec2"
+  tags               = local.common_tags
 }
 
 data "aws_vpc" "default" {
